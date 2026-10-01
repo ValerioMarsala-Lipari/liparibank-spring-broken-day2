@@ -2,7 +2,6 @@ package com.lipari.bank.account;
 
 import com.lipari.bank.account.dto.AccountCreateRequest;
 import com.lipari.bank.account.dto.AccountResponse;
-import com.lipari.bank.account.model.Account;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -64,10 +63,9 @@ public class AccountController {
             @ApiResponse(responseCode = "400", description = "Dati non validi")
     })
     public ResponseEntity<AccountResponse> create(
-            @Valid @RequestBody Account request
+            @Valid @RequestBody AccountCreateRequest request
     ) {
-        AccountCreateRequest dto = new AccountCreateRequest(null, request.getBalance());
-        AccountResponse created = accountService.create(dto);
+        AccountResponse created = accountService.create(request);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
