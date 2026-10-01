@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,6 +26,27 @@ public class AccountService {
     public Page<AccountResponse> findAll(Pageable pageable) {
         log.debug("Recupero lista conti - pagina: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
         return accountRepository.findAll(pageable).map(accountMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AccountResponse> search(BigDecimal minBalance, BigDecimal maxBalance) {
+        log.debug("Ricerca conti - minBalance: {}, maxBalance: {}", minBalance, maxBalance);
+
+        List<Account> accounts;
+
+        if (minBalance != null && maxBalance != null) {
+            accounts = accountRepository.findByBalanceBetween(minBalance, maxBalance);
+        } else if (minBalance != null) {
+            accounts = accountRepository.findByBalanceGreaterThanEqual(minBalance);
+        } else if (maxBalance != null) {
+            accounts = accountRepository.findByBalanceLessThanEqual(maxBalance);
+        } else {
+            accounts = accountRepository.findAll();
+        }
+
+        return accounts.stream()
+            .map(accountMapper::toResponse)
+            .toList();
     }
 
     @Transactional(readOnly = true)

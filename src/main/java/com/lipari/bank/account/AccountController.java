@@ -17,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/accounts")
@@ -41,6 +43,25 @@ public class AccountController {
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable
     ) {
         return ResponseEntity.ok(accountService.findAll(pageable));
+    }
+
+    @GetMapping("/search")
+    @Operation(
+        summary = "Ricerca conti per saldo",
+        description = "Restituisce i conti correnti filtrati per saldo minimo e/o massimo."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Ricerca completata con successo"),
+        @ApiResponse(responseCode = "401", description = "Non autenticato")
+    })
+    public ResponseEntity<List<AccountResponse>> search(
+        @Parameter(description = "Saldo minimo incluso", example = "500.00")
+        @RequestParam(required = false) BigDecimal minBalance,
+
+        @Parameter(description = "Saldo massimo incluso", example = "2000.00")
+        @RequestParam(required = false) BigDecimal maxBalance
+    ) {
+        return ResponseEntity.ok(accountService.search(minBalance, maxBalance));
     }
 
     @GetMapping("/{id}")
